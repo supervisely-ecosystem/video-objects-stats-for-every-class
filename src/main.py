@@ -18,18 +18,16 @@ if DATASET_ID is not None:
 PROJECT = None
 
 
-def process_video_annotation(ann, classes_counter, figures_counter, frames_counter):
+def process_video_annotation(ann, objects_counter, figures_counter, frames_counter):
     for obj in ann.objects:
-        classes_counter[obj.obj_class.name] += 1
-    for figure in ann.figures:
-        figures_counter[figure.video_object.obj_class.name] += 1
+        objects_counter[obj.obj_class.name] += 1
     for frame in ann.frames:
-        already_on_frame = []
+        already_on_frame = set()
         for fig in frame.figures:
+            figures_counter[fig.video_object.obj_class.name] += 1
             if fig.video_object.obj_class.name not in already_on_frame:
                 frames_counter[fig.video_object.obj_class.name] += 1
-                already_on_frame.append(fig.video_object.obj_class.name)
-    return classes_counter, figures_counter, frames_counter
+                already_on_frame.add(fig.video_object.obj_class.name)
 
 
 def data_counter(data, dataset, classes, classes_counter, figures_counter, frames_counter):
@@ -70,10 +68,13 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
         for video_info in videos:
             ann_info = api.video.annotation.download(video_info.id)
             ann = sly.VideoAnnotation.from_json(ann_info, meta, key_id_map)
-            objects, figures, frames = process_video_annotation(ann, classes_counter, figures_counter, frames_counter)
-
-        data = data_counter(data, dataset, classes, classes_counter, figures_counter, frames_counter)
+            process_video_annotation(ann, ds_objects, ds_figures, ds_frames)
         datasets_counts.append(ds_counter)
+
+    for obj_class in meta.obj_classes:
+        pass
+    
+    data = data_counter(data, dataset, classes, classes_counter, figures_counter, frames_counter)
 
     classes.append('Total')
     for key, val in data.items():
