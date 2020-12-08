@@ -9,7 +9,7 @@
         </sly-card>
         <sly-card title="Output" style="width: 50%;">
             <div v-if="data.started === true && data.progress !== 100">
-                <div>Video "{{data.videoName}}}" ({{data.progressCurrent}} / {{data.progressTotal}})</div>
+                <div>Processing videos: {{data.progressCurrent}} / {{data.progressTotal}}</div>
                 <el-progress :percentage="data.progress"></el-progress>
             </div>
             <sly-field v-if="data.progress === 100" title=""
@@ -19,4 +19,15 @@
             </sly-field>
         </sly-card>
     </div>
+
+    <sly-card class="mt15"
+              title="Quantitative stats for video objects"
+              subtitle="Basic number for project / for every class / for every dataset"
+              style="min-height: 200px;"
+    >
+        <sly-table v-loading="data.loading"
+                   element-loading-text="Calculating ..."
+                   :content="data.table">
+        </sly-table>
+    </sly-card>
 </div>

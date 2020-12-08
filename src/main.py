@@ -1,5 +1,5 @@
 import os
-
+from collections import defaultdict
 import supervisely_lib as sly
 from supervisely_lib.video_annotation.key_id_map import KeyIdMap
 import pandas as pd
@@ -18,7 +18,7 @@ if DATASET_ID is not None:
 PROJECT = None
 
 
-def items_counter(ann, classes_counter, figures_counter, frames_counter):
+def process_video_annotation(ann, classes_counter, figures_counter, frames_counter):
     for obj in ann.objects:
         classes_counter[obj.obj_class.name] += 1
     for figure in ann.figures:
@@ -49,36 +49,31 @@ def data_counter(data, dataset, classes, classes_counter, figures_counter, frame
 def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
     api.task.set_field(task_id, "data.started", True)
 
-    meta_json = api.project.get_meta(project.id)
+    meta_json = api.project.get_meta(PROJECT.id)
     meta = sly.ProjectMeta.from_json(meta_json)
+    if len(meta.obj_classes) == 0:
+        raise ValueError("There are no object classes in project")
+    counter = defaultdict(int)
 
-    classes = []
-    counter = {}
-    for curr_class in meta.obj_classes:
-        classes.append(curr_class.name)
-        counter[curr_class.name] = 0
-
-    columns = ['total_objects', 'total_figures', 'total_frames']
-    data = {'total_objects': [0] * len(classes), 'total_figures': [0] * len(classes), 'total_frames': [0] * len(classes)}
+    columns = ['total: objects', 'total: figures', 'total: frames']
+    total_counter = defaultdict(int)
+    datasets_counts = []
 
     key_id_map = KeyIdMap()
     for dataset in api.dataset.get_list(project.id):
-        columns.extend([dataset.name + '_objects', dataset.name + '_figures', dataset.name + '_frames'])
-        classes_counter = copy.deepcopy(counter)
-        figures_counter = copy.deepcopy(counter)
-        frames_counter = copy.deepcopy(counter)
-        data[dataset.name + '_objects'] = []
-        data[dataset.name + '_figures'] = []
-        data[dataset.name + '_frames'] = []
-        videos = api.video.get_list(dataset.id)
-        for batch in sly.batched(videos):
-            for video_info in batch:
-                ann_info = api.video.annotation.download(video_info.id)
-                ann = sly.VideoAnnotation.from_json(ann_info, meta, key_id_map)
+        columns.extend([dataset.name + ': objects', dataset.name + ': figures', dataset.name + ': frames'])
+        ds_objects = defaultdict(int)
+        ds_figures = defaultdict(int)
+        ds_frames = defaultdict(int)
 
-                classes_counter, figures_counter, frames_counter = items_counter(ann, classes_counter, figures_counter, frames_counter)
+        videos = api.video.get_list(dataset.id)
+        for video_info in videos:
+            ann_info = api.video.annotation.download(video_info.id)
+            ann = sly.VideoAnnotation.from_json(ann_info, meta, key_id_map)
+            objects, figures, frames = process_video_annotation(ann, classes_counter, figures_counter, frames_counter)
 
         data = data_counter(data, dataset, classes, classes_counter, figures_counter, frames_counter)
+        datasets_counts.append(ds_counter)
 
     classes.append('Total')
     for key, val in data.items():
@@ -86,6 +81,7 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
     df = pd.DataFrame(data, columns=columns, index=classes)
     print(df)
 
+    api.task.set_field(task_id, "data.loading", False)
     my_app.stop()
 
 
@@ -103,7 +99,7 @@ def main():
     if PROJECT is None:
         raise RuntimeError("Project {!r} not found".format(PROJECT.name))
     if PROJECT.type != str(sly.ProjectType.VIDEOS):
-        raise TypeError("Project type is {!r}, but have to be {!r}".format(PROJECT.type, sly.ProjectType.VIDEOS))
+        raise TypeError("Project type is {!r}, but has to be {!r}".format(PROJECT.type, sly.ProjectType.VIDEOS))
 
     data = {}
     state = {}
@@ -113,7 +109,9 @@ def main():
     data["projectName"] = PROJECT.name
     data["projectPreviewUrl"] = api.image.preview_url(PROJECT.reference_image_url, 100, 100)
     data["progressCurrent"] = 0
-    data["progressTotal"] = PROJECT.images_count
+    data["progressTotal"] = PROJECT.items_count
+    data["loading"] = True
+    data["table"] = {"columns": [], "data": []}
 
     # Run application service
     my_app.run(data=data, state=state, initial_events=[{"command": "calculate_stats"}])
