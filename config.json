@@ -1,17 +1,20 @@
 {
-  "name": "Video objects quantitative stats",
+  "name": "Video objects stats for every class",
   "type": "app",
   "categories": [
-    "Videos"
+    "report",
+    "videos",
+    "data exploration"
   ],
-  "description": "Video objects quantitative stats",
+  "description": "The number of objects, figures and frames for every class for every dataset",
   "docker_image": "supervisely/base-py-sdk:6",
-  "main_script": "src/video-objects-quantitative-stats.py",
-  "task_location": "application_sessions",
-  "icon": "https://img.icons8.com/color/96/000000/group.png",
+  "main_script": "src/main.py",
+  "task_location": "workspace_tasks",
+  "icon": "https://i.imgur.com/3JATXzl.png",
   "icon_background": "#FFFFFF",
   "headless": true,
   "context_menu": {
-    "target": ["videos_project"]   
+    "target": ["videos_project", "videos_dataset"],
+    "context_root": "Report"
   }
 }
