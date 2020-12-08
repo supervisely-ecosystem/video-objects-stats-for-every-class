@@ -1,0 +1,22 @@
+<div>
+    <div class="fflex" style="align-items: stretch">
+        <sly-card title="Input" style="width: 50%" class="mr15">
+            <sly-field title="" description="Video project">
+                <a slot="title" target="_blank"
+                   :href="`/projects/${data.projectId}/datasets`">{{data.projectName}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.projectPreviewUrl}` }"/>
+            </sly-field>
+        </sly-card>
+        <sly-card title="Output" style="width: 50%;">
+            <div v-if="data.started === true && data.progress !== 100">
+                <div>Video "{{data.videoName}}}" ({{data.progressCurrent}} / {{data.progressTotal}})</div>
+                <el-progress :percentage="data.progress"></el-progress>
+            </div>
+            <sly-field v-if="data.progress === 100" title=""
+                       description="New project has been successfully created">
+                <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
+                <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
+            </sly-field>
+        </sly-card>
+    </div>
+</div>

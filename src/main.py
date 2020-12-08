@@ -8,9 +8,14 @@ from operator import add
 
 my_app = sly.AppService()
 
+
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
-PROJECT_ID = int(os.environ["modal.state.slyProjectId"])
+PROJECT_ID = int(os.environ['modal.state.slyProjectId'])
+DATASET_ID = os.environ.get('modal.state.slyDatasetId', None)
+if DATASET_ID is not None:
+    DATASET_ID = int(DATASET_ID)
+PROJECT = None
 
 
 def items_counter(ann, classes_counter, figures_counter, frames_counter):
@@ -39,14 +44,10 @@ def data_counter(data, dataset, classes, classes_counter, figures_counter, frame
     return data
 
 
-@my_app.callback("video_objects_quantitative_stats")
+@my_app.callback("calculate_stats")
 @sly.timeit
-def video_objects_quantitative_stats(api: sly.Api, task_id, context, state, app_logger):
-    project = api.project.get_info_by_id(PROJECT_ID)
-    if project is None:
-        raise RuntimeError("Project {!r} not found".format(project.name))
-    if project.type != str(sly.ProjectType.VIDEOS):
-        raise TypeError("Project type is {!r}, but have to be {!r}".format(project.type, sly.ProjectType.VIDEOS))
+def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
+    api.task.set_field(task_id, "data.started", True)
 
     meta_json = api.project.get_meta(project.id)
     meta = sly.ProjectMeta.from_json(meta_json)
@@ -89,14 +90,33 @@ def video_objects_quantitative_stats(api: sly.Api, task_id, context, state, app_
 
 
 def main():
+    global PROJECT
     sly.logger.info("Script arguments", extra={
         "TEAM_ID": TEAM_ID,
         "WORKSPACE_ID": WORKSPACE_ID,
-        "PROJECT_ID": PROJECT_ID
+        "VIDEO_PROJECT_ID": PROJECT_ID,
+        "VIDEO_DATASET_ID": DATASET_ID
     })
 
+    api = my_app.public_api
+    PROJECT = api.project.get_info_by_id(PROJECT_ID)
+    if PROJECT is None:
+        raise RuntimeError("Project {!r} not found".format(PROJECT.name))
+    if PROJECT.type != str(sly.ProjectType.VIDEOS):
+        raise TypeError("Project type is {!r}, but have to be {!r}".format(PROJECT.type, sly.ProjectType.VIDEOS))
+
+    data = {}
+    state = {}
+
+    #input card
+    data["projectId"] = PROJECT.id
+    data["projectName"] = PROJECT.name
+    data["projectPreviewUrl"] = api.image.preview_url(PROJECT.reference_image_url, 100, 100)
+    data["progressCurrent"] = 0
+    data["progressTotal"] = PROJECT.images_count
+
     # Run application service
-    my_app.run(initial_events=[{"command": "video_objects_quantitative_stats"}])
+    my_app.run(data=data, state=state, initial_events=[{"command": "calculate_stats"}])
 
 
 if __name__ == "__main__":
