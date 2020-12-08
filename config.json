@@ -2,7 +2,7 @@
   "name": "Video objects quantitative stats",
   "type": "app",
   "categories": [
-    "User Management"
+    "Videos"
   ],
   "description": "Video objects quantitative stats",
   "docker_image": "supervisely/base-py-sdk:6",
@@ -12,6 +12,6 @@
   "icon_background": "#FFFFFF",
   "headless": true,
   "context_menu": {
-    "target": ["video_project"]   
+    "target": ["videos_project"]   
   }
 }
