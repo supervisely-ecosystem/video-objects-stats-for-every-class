@@ -107,7 +107,7 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
     sly.fs.ensure_base_path(local_path)
     with open(local_path, "w") as text_file:
         print(my_app.app_url, file=text_file)
-    remote_path = "/reports/video_objects_stats/{}".format(report_name)
+    remote_path = "/reports/video_objects_stats_for_every_class/{}".format(report_name)
     remote_path = api.file.get_free_name(TEAM_ID, remote_path)
     report_name = sly.fs.get_file_name_with_ext(remote_path)
     file_info = api.file.upload(TEAM_ID, local_path, remote_path)
@@ -121,6 +121,8 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
         {"field": "data.reportUrl", "payload": report_url},
     ]
     api.app.set_fields(task_id, fields)
+    api.task.set_output_report(task_id, file_info.id, report_name)
+    
     my_app.stop()
 
 
