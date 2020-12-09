@@ -14,7 +14,6 @@
   "task_location": "workspace_tasks",
   "icon": "https://i.imgur.com/3JATXzl.png",
   "icon_background": "#FFFFFF",
-  "headless": true,
   "context_menu": {
     "target": ["videos_project", "videos_dataset"],
     "context_root": "Report"
