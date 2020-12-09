@@ -28,7 +28,7 @@ Counts number of objects (instances), their figures, and number of frames that h
 
 **Step 1:** Add app to your team from Ecosystem if it is not there
 
-**Step 2:** Run app from the context menu of video project
+**Step 2:** Run app from the context menu of video project: `context menu` -> `Reports` -> `Video objects stats for every class`
 
 <img src="https://i.imgur.com/Xsg6AK7.png" width="500px"/>
 
