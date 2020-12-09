@@ -13,20 +13,23 @@
                 <el-progress :percentage="data.progress"></el-progress>
             </div>
             <sly-field v-if="data.progress === 100" title=""
-                       description="New project has been successfully created">
-                <a slot="title" target="_blank" :href="`/projects/${data.resultProjectId}/datasets`">{{data.resultProject}}</a>
-                <sly-icon slot="icon" :options="{ imageUrl: `${data.resultProjectPreviewUrl}` }"/>
+                       description="Report has been successfully saved">
+                <a slot="title" target="_blank" :href="`${data.reportUrl}`">{{data.reportName}}</a>
+                <sly-icon slot="icon" :options="{ color: '#33c94c', bgColor: '#d9f7e4', rounded: false }">
+                    <i class="zmdi zmdi-receipt"></i>
+                </sly-icon>
             </sly-field>
         </sly-card>
     </div>
 
     <sly-card class="mt15"
               title="Quantitative stats for video objects"
-              subtitle="Basic number for project / for every class / for every dataset"
+              subtitle="for every class / for every dataset / for entire project"
               style="min-height: 200px;"
     >
         <sly-table v-loading="data.loading"
                    element-loading-text="Calculating ..."
+                   :options="{perPage: 50, pageSizes: [10, 20, 50, 100], fixColumns: 2}"
                    :content="data.table">
         </sly-table>
     </sly-card>
