@@ -34,4 +34,6 @@ Counts number of objects (instances), their figures, and number of frames that h
 
 **Step 3:** Wait until the app is started, press `Open` button in `Workspace tasks`. 
 
+<img src="https://i.imgur.com/lWrXPiV.png"/>
+
 **Step 4:** App saves link to report to team files: `/reports/video_objects_stats_for_every_class/<project id>_<project_name>.lnk`. Link to generated report also available in task output column
