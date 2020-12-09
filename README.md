@@ -20,11 +20,9 @@
 
 ## Overview
 
-Application converts all labeled video frames (both tags and figures) to images project. Additionaly, information about original video project (`video_id`, `video_name`, `frame_index`, `video_dataset_id`, `video_dataset_name`, `video_project_id`, `video_project_name`) is assigned to every image as metadata. 
+Counts number of objects (instances), their figures, and number of frames that have object of specific class. 
 
-Image names have the following format: `{}_frame_{:05d}.jpg`, for example `my_video_frame_00077.jpg`. Video tags (both properties and frame range tags) are assigned to corresponding images and objects
-
-<img src="https://i.imgur.com/7zQQVFA.png"/>
+<img src="https://i.imgur.com/YjLBvMK.png"/>
 
 ## How To Use
 
@@ -34,4 +32,6 @@ Image names have the following format: `{}_frame_{:05d}.jpg`, for example `my_vi
 
 <img src="https://i.imgur.com/WZV7kdJ.png" width="500px"/>
 
-**Step 3:** Wait until the task is finished, new project with `name` = `original name` + `(images)` suffix is created in the same workspace. Link to project is available in task output column
+**Step 3:** Wait until the app is started, press `Open` button in `Workspace tasks`. 
+
+**Step 4:** App saves link to report to team files: `/reports/video_objects_stats_for_every_class/<project id>_<project_name>.lnk`. Link to generated report also available in task output column
