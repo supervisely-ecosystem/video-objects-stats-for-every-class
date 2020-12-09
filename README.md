@@ -20,7 +20,7 @@
 
 ## Overview
 
-Counts number of objects (instances), their figures, and number of frames that have object of specific class. 
+Counts the number of objects (instances), their figures, and the number of frames that have at least one object of a specific class.
 
 <img src="https://i.imgur.com/YjLBvMK.png"/>
 
