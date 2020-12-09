@@ -9,6 +9,8 @@
   "description": "The number of objects, figures and frames for every class for every dataset",
   "docker_image": "supervisely/base-py-sdk:6",
   "main_script": "src/main.py",
+  "gui_template": "src/gui.html",
+  "modal_template": "src/modal.html",
   "task_location": "workspace_tasks",
   "icon": "https://i.imgur.com/3JATXzl.png",
   "icon_background": "#FFFFFF",
