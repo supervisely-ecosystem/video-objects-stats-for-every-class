@@ -30,7 +30,7 @@ Counts number of objects (instances), their figures, and number of frames that h
 
 **Step 2:** Run app from the context menu of video project
 
-<img src="https://i.imgur.com/WZV7kdJ.png" width="500px"/>
+<img src="https://i.imgur.com/Xsg6AK7.png" width="500px"/>
 
 **Step 3:** Wait until the app is started, press `Open` button in `Workspace tasks`. 
 
