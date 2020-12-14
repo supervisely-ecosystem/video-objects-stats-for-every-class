@@ -37,3 +37,5 @@ Counts the number of objects (instances), their figures, and the number of frame
 <img src="https://i.imgur.com/lWrXPiV.png"/>
 
 **Step 4:** App saves link to report to team files: `/reports/video_objects_stats_for_every_class/<project id>_<project_name>.lnk`. Link to generated report also available in task output column
+
+
