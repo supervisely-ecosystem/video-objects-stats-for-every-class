@@ -15,7 +15,11 @@
   "icon": "https://i.imgur.com/3JATXzl.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
-    "target": ["videos_project", "videos_dataset"],
+    "target": [
+      "videos_project",
+      "videos_dataset"
+    ],
     "context_root": "Report"
-  }
+  },
+  "poster": "https://i.imgur.com/sIUn29m.png"
 }
