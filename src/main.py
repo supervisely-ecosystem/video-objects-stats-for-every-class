@@ -134,11 +134,11 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
             row.extend([0, 0, 0])
 
         for ds_name, ds_objects, ds_figures, ds_frames in datasets_counts:
-            row.extend([ds_objects[name], ds_figures[name], ds_frames[name]])
+            row.extend([ds_objects[name], ds_figures[name], ds_frames.get(name, 0)])
             if DATASET_ID is None:
                 row[2] += ds_objects[name]
                 row[3] += ds_figures[name]
-                row[4] += ds_frames[name]
+                row[4] += ds_frames.get(name, 0)
         data.append(row)
 
     df = pd.DataFrame(data, columns=columns)
