@@ -213,5 +213,7 @@ def main():
     my_app.run(data=data, state=state, initial_events=[{"command": "calculate_stats"}])
 
 
+# @TODO: collect objects by id to process situation when one object exists on two different videos
+
 if __name__ == "__main__":
     sly.main_wrapper("main", main)
