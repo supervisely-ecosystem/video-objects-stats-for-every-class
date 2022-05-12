@@ -18,6 +18,12 @@ if DATASET_ID is not None:
 PROJECT = None
 
 
+ANNOTATED_FRAMES = {}
+"""
+ds_name -> item_name -> obj_class_name -> [annotated frames]
+"""
+
+
 def process_video_annotation(ann, objects_counter, figures_counter, frames_counter):
     for obj in ann.objects:
         objects_counter[obj.obj_class.name] += 1
@@ -26,8 +32,44 @@ def process_video_annotation(ann, objects_counter, figures_counter, frames_count
         for fig in frame.figures:
             figures_counter[fig.video_object.obj_class.name] += 1
             if fig.video_object.obj_class.name not in already_on_frame:
-                frames_counter[fig.video_object.obj_class.name] += 1
+                frames_counter.setdefault(fig.video_object.obj_class.name, []).append(frame.index)
                 already_on_frame.add(fig.video_object.obj_class.name)
+
+
+def get_annotated_frames_count_by_classes_in_dataset(ds_frames):
+    object_name_to_annotated_frames = {}
+    for video_name, objects_on_video in ds_frames.items():
+        for obj_name, annotated_frames_list in objects_on_video.items():
+            object_name_to_annotated_frames[obj_name] = len(annotated_frames_list)
+
+    return object_name_to_annotated_frames
+
+
+def get_total_frames_counts():
+    annotated_frames_totals = {ds_name: 0 for ds_name in ANNOTATED_FRAMES.keys()}
+    for ds_name, videos_dict in ANNOTATED_FRAMES.items():
+        set_of_annotated_frames_for_video = set()
+        for video_name, annotated_frames_by_objects_dict in videos_dict.items():
+            for object_frames_list in annotated_frames_by_objects_dict.values():
+                set_of_annotated_frames_for_video = set_of_annotated_frames_for_video.union(set(object_frames_list))
+
+        annotated_frames_totals[ds_name] += len(set_of_annotated_frames_for_video)
+    return annotated_frames_totals
+
+
+def update_totals_by_datasets(dsname2total, total_row, columns):
+    for ds_name, total in dsname2total.items():
+        try:
+            column_index_for_ds = columns.index(f'{ds_name}: frames')
+            total_row[column_index_for_ds] = total
+        except Exception as ex:
+            sly.logger.warning(f'Cannot define total for {ds_name=}, reason: {repr(ex)}')
+
+    if len(dsname2total) > 0:
+        total_by_datasets = sum(list(dsname2total.values()))
+        column_index = columns.index('total: frames')
+        total_row[column_index] = total_by_datasets
+    return total_row
 
 
 @my_app.callback("calculate_stats")
@@ -64,19 +106,24 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
         columns.extend([dataset.name + ': objects', dataset.name + ': figures', dataset.name + ': frames'])
         ds_objects = defaultdict(int)
         ds_figures = defaultdict(int)
-        ds_frames = defaultdict(int)
+        ds_frames = ANNOTATED_FRAMES.setdefault(dataset.name, {})
+        # ds_frames = defaultdict(int)
 
         videos = api.video.get_list(dataset.id)
         for video_info in videos:
+            video_frames = ds_frames.setdefault(video_info.name, {})
+
             ann_info = api.video.annotation.download(video_info.id)
             ann = sly.VideoAnnotation.from_json(ann_info, meta, key_id_map)
-            process_video_annotation(ann, ds_objects, ds_figures, ds_frames)
+            process_video_annotation(ann, ds_objects, ds_figures, video_frames)
             progress.iter_done_report()
             api.app.set_fields(task_id, fields=[
                 {"field": "data.progressCurrent", "payload": progress.current},
                 {"field": "data.progress", "payload": int(progress.current * 100 / total_count)},
             ])
-        datasets_counts.append((dataset.name, ds_objects, ds_figures, ds_frames))
+
+        obj_name2annotated_frames_count = get_annotated_frames_count_by_classes_in_dataset(ds_frames)
+        datasets_counts.append((dataset.name, ds_objects, ds_figures, obj_name2annotated_frames_count))
 
     data = []
     for idx, obj_class in enumerate(meta.obj_classes):
@@ -98,6 +145,9 @@ def calculate_stats(api: sly.Api, task_id, context, state, app_logger):
     total_row = list(df.sum(axis=0))
     total_row[0] = len(df)
     total_row[1] = 'Total'
+
+    dsname2total = get_total_frames_counts()
+    total_row = update_totals_by_datasets(dsname2total, total_row, columns)
     df.loc[len(df)] = total_row
     #df = df.append(total_row, ignore_index=True)
 
@@ -162,6 +212,8 @@ def main():
     # Run application service
     my_app.run(data=data, state=state, initial_events=[{"command": "calculate_stats"}])
 
+
+# @TODO: collect objects by id to process situation when one object exists on two different videos
 
 if __name__ == "__main__":
     sly.main_wrapper("main", main)
