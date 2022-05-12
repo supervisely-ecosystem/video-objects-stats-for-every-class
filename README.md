@@ -28,8 +28,8 @@ Counts the number of objects (instances), their figures, and the number of frame
 
 ## Usage
 
-* **OBJECTS** — amount of objects existing on video for each class
-* **FIGURES** — amount of figures existing on video for each class
+* **OBJECTS** — amount of objects existing on videos for each class
+* **FIGURES** — amount of figures existing on videos for each class
 * **FRAMES** — amount of class-labeled frames
 
 
