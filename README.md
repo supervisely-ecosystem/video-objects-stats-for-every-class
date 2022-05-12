@@ -5,7 +5,7 @@
 
 <p align="center">
   <a href="#Overview">Overview</a> •
-  <a href="#Usage">Usage</a>
+  <a href="#Usage">Usage</a> •
   <a href="#how-to-run">How To Run</a>
 </p>
 
