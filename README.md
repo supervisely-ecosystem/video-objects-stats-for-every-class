@@ -33,7 +33,7 @@ Counts the number of objects (instances), their figures, and the number of frame
 * **FRAMES** — amount of class-labeled frames
 
 
-<img src="https://imgur.com/I5EvrUS.png"/>
+<img src="https://imgur.com/s52Wex3.png"/>
 
 ## How To Run
 
