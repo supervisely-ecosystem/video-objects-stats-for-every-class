@@ -3,10 +3,11 @@ from collections import defaultdict
 import pandas as pd
 import json
 
-import supervisely_lib as sly
-from supervisely_lib.video_annotation.key_id_map import KeyIdMap
+import supervisely as sly
+from supervisely.video_annotation.key_id_map import KeyIdMap
+from supervisely.app.v1.app_service import AppService
 
-my_app = sly.AppService()
+my_app: AppService = AppService()
 
 TEAM_ID = int(os.environ['context.teamId'])
 WORKSPACE_ID = int(os.environ['context.workspaceId'])
