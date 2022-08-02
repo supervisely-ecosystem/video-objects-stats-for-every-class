@@ -1,5 +1,5 @@
 <div align="center" markdown>
-<img src="https://i.imgur.com/sIUn29m.png"/>
+<img src="https://user-images.githubusercontent.com/48245050/182398075-177b1c24-a357-45c1-9ad9-f1923f6f32c2.png"/>
 
 # Video Objects Stats for Every Class
 
