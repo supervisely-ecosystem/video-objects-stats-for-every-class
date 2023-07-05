@@ -66,7 +66,7 @@ def update_totals_by_datasets(dsname2total, total_row, columns):
         except Exception as ex:
             sly.logger.warning(f'Cannot define total for {ds_name=}, reason: {repr(ex)}')
 
-    if len(dsname2total) > 0:
+    if len(dsname2total) > 0 and DATASET_ID is None:
         total_by_datasets = sum(list(dsname2total.values()))
         column_index = columns.index('total: frames')
         total_row[column_index] = total_by_datasets
