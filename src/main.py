@@ -38,10 +38,10 @@ def process_video_annotation(ann, objects_counter, figures_counter, frames_count
 
 
 def get_annotated_frames_count_by_classes_in_dataset(ds_frames):
-    object_name_to_annotated_frames = {}
+    object_name_to_annotated_frames = defaultdict(int)
     for video_name, objects_on_video in ds_frames.items():
         for obj_name, annotated_frames_list in objects_on_video.items():
-            object_name_to_annotated_frames[obj_name] = len(annotated_frames_list)
+            object_name_to_annotated_frames[obj_name] += len(annotated_frames_list)
 
     return object_name_to_annotated_frames
 
@@ -49,12 +49,12 @@ def get_annotated_frames_count_by_classes_in_dataset(ds_frames):
 def get_total_frames_counts():
     annotated_frames_totals = {ds_name: 0 for ds_name in ANNOTATED_FRAMES.keys()}
     for ds_name, videos_dict in ANNOTATED_FRAMES.items():
-        set_of_annotated_frames_for_video = set()
         for video_name, annotated_frames_by_objects_dict in videos_dict.items():
+            set_of_annotated_frames_for_video = set()
             for object_frames_list in annotated_frames_by_objects_dict.values():
                 set_of_annotated_frames_for_video = set_of_annotated_frames_for_video.union(set(object_frames_list))
 
-        annotated_frames_totals[ds_name] += len(set_of_annotated_frames_for_video)
+            annotated_frames_totals[ds_name] += len(set_of_annotated_frames_for_video)
     return annotated_frames_totals
 
 
@@ -64,7 +64,7 @@ def update_totals_by_datasets(dsname2total, total_row, columns):
             column_index_for_ds = columns.index(f'{ds_name}: frames')
             total_row[column_index_for_ds] = total
         except Exception as ex:
-            sly.logger.warning(f'Cannot define total for {ds_name=}, reason: {repr(ex)}')
+            sly.logger.warning(f'Cannot define total for {ds_name}, reason: {repr(ex)}')
 
     if len(dsname2total) > 0 and DATASET_ID is None:
         total_by_datasets = sum(list(dsname2total.values()))
