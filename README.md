@@ -22,7 +22,7 @@
 
 Counts the number of objects (instances), their figures, and the number of frames that have at least one object of a specific class.
 
-<img src="https://i.imgur.com/YjLBvMK.png"/>
+<img src="media/ov.png"/>
 
 
 ## Usage
@@ -32,7 +32,7 @@ Counts the number of objects (instances), their figures, and the number of frame
 * **FRAMES** — amount of class-labeled frames
 
 
-<img src="https://imgur.com/s52Wex3.png"/>
+<img src="media/u1.png"/>
 
 ## How To Run
 
@@ -40,11 +40,11 @@ Counts the number of objects (instances), their figures, and the number of frame
 
 **Step 2:** Run app from the context menu of video project: `context menu` -> `Reports` -> `Video objects stats for every class`
 
-<img src="https://i.imgur.com/Xsg6AK7.png" width="500px"/>
+<img src="media/htr1.png" width="500px"/>
 
 **Step 3:** Wait until the app is started, press `Open` button in `Workspace tasks`. 
 
-<img src="https://i.imgur.com/lWrXPiV.png"/>
+<img src="media/htr3.png"/>
 
 **Step 4:** App saves link to report to team files: `/reports/video_objects_stats_for_every_class/<project id>_<project_name>.lnk`. Link to generated report also available in task output column
 
