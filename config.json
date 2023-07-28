@@ -1,26 +1,26 @@
 {
-  "name": "Video objects stats for every class",
-  "type": "app",
-  "categories": [
-    "videos",
-    "statistics",
-    "visualization stats"
-  ],
-  "description": "The number of objects, figures and frames for every class for every dataset",
-  "docker_image": "supervisely/base-py-sdk:6.72.55",
-  "instance_version": "6.4.57",
-  "main_script": "src/main.py",
-  "gui_template": "src/gui.html",
-  "modal_template": "src/modal.html",
-  "task_location": "workspace_tasks",
-  "icon": "https://i.imgur.com/3JATXzl.png",
-  "icon_background": "#FFFFFF",
-  "context_menu": {
-    "target": [
-      "videos_project",
-      "videos_dataset"
+    "name": "Video objects stats for every class",
+    "type": "app",
+    "categories": [
+        "videos",
+        "statistics",
+        "visualization stats"
     ],
-    "context_root": "Report"
-  },
-  "poster": "https://user-images.githubusercontent.com/48245050/182398075-177b1c24-a357-45c1-9ad9-f1923f6f32c2.png"
+    "description": "The number of objects, figures and frames for every class for every dataset",
+    "docker_image": "supervisely/collaboration:0.0.1",
+    "instance_version": "6.4.57",
+    "main_script": "src/main.py",
+    "gui_template": "src/gui.html",
+    "modal_template": "src/modal.html",
+    "task_location": "workspace_tasks",
+    "icon": "https://i.imgur.com/3JATXzl.png",
+    "icon_background": "#FFFFFF",
+    "context_menu": {
+        "target": [
+            "videos_project",
+            "videos_dataset"
+        ],
+        "context_root": "Report"
+    },
+    "poster": "https://user-images.githubusercontent.com/48245050/182398075-177b1c24-a357-45c1-9ad9-f1923f6f32c2.png"
 }
