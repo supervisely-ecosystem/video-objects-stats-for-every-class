@@ -7,7 +7,7 @@
         "visualization stats"
     ],
     "description": "The number of objects, figures and frames for every class for every dataset",
-    "docker_image": "supervisely/visualization-stats:0.0.1",
+    "docker_image": "supervisely/visualization-stats:0.0.5",
     "instance_version": "6.4.57",
     "main_script": "src/main.py",
     "gui_template": "src/gui.html",
