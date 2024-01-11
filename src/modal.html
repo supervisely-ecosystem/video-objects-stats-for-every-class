@@ -1,9 +1,38 @@
-<div>
-    <b>Overview:</b>
-    <ul>
-        <li>Calculates quantitative stats for every class / dataset / entire project</li>
-        <li>Takes as input entire video project or single video dataset</li>
-        <li>Result report name = [project id]_[project name].lnk</li>
-        <li>Report is saved to team files to the directory "/reports/video_objects_stats_for_every_class/"</li>
-    </ul>
+<div class="mt10">
+  <sly-field title="Overview:">
+    <div class="fflex">
+      <sly-icon
+        :options="{'className': 'zmdi zmdi-shape', 'color': '#009aff', 'bgColor': 'transparent'}"
+      ></sly-icon>
+      <span
+        >Calculates quantitative stats for <strong>every class</strong></span
+      >
+    </div>
+    <div class="fflex">
+      <sly-icon
+        :options="{'className': 'zmdi zmdi-toll', 'color': '#009aff', 'bgColor': 'transparent'}"
+      ></sly-icon>
+      <span
+        >Calculates stats for <strong>every object</strong> with figures and
+        tags</span
+      >
+    </div>
+    <div class="fflex">
+      <sly-icon
+        :options="{'className': 'zmdi collection-video', 'color': '#009aff', 'bgColor': 'transparent'}"
+      ></sly-icon>
+      <span
+        >Statistics are calculated for selected dataset or entire project</span
+      >
+    </div>
+    <div class="fflex">
+      <sly-icon
+        :options="{'className': 'zmdi zmdi-folder', 'color': '#009aff', 'bgColor': 'transparent'}"
+      ></sly-icon>
+      <span>All statistics are saved to the Team Files</span>
+    </div>
+  </sly-field>
+  <sly-field title="Path to the results in the Team files:">
+    <code>/reports/video_objects_stats_for_every_class/TASK_ID/</code>
+  </sly-field>
 </div>
