@@ -1,6 +1,6 @@
 from supervisely.app.widgets import Card, Container, FastTable
 
-fast_table = FastTable(fixed_columns=1)
+fast_table = FastTable()
 
 card = Card(
     title="Class Balance",

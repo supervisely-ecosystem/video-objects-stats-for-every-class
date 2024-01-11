@@ -6,11 +6,15 @@ import src.globals as g
 import supervisely as sly
 
 
-def prepare_video_name(video_name):
+def prepare_video_name_with_link(video_info, frame):
     """Prepare video name for table if it is too long"""
+    video_name = video_info.name
     if len(video_name) > 50:
-        video_name = video_name[:45] + "..." + video_name[-10:]
-    return video_name
+        video_name = video_name[:40] + "..." + video_name[-10:]
+    link = sly.video.get_labeling_tool_url(
+        video_info.dataset_id, video_info.id, frame=frame, link=True, link_text=video_name
+    )
+    return link
 
 
 def seconds_to_time(seconds):
@@ -25,7 +29,7 @@ def seconds_to_time(seconds):
 
 
 def calculate_objects_stats(videos_counts, need_to_add_tags=False):
-    table_options = {"fixedColumns": 2, "pageSize": 20}
+    table_options = {"fixColumns": 1, "pageSize": 10}
 
     if len(g.PROJECT_META.obj_classes) == 0:
         sly.logger.warn("There are no object in the project")
@@ -59,7 +63,10 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
         {},
         {"type": "class"},
         {"subtitle": "name"},
-        {"subtitle": "name"},
+        {
+            "subtitle": "name",
+            "tooltip": "click to open video in labeling tool the first frame with current object",
+        },
         {"subtitle": "time"},
         {"subtitle": "frames count", "postfix": "frames"},
         {"subtitle": "count with current object", "postfix": "frames"},
@@ -93,7 +100,7 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
                     object_id,  # obj_key,
                     obj_class_name,
                     ds_name,
-                    prepare_video_name(video_info.name),
+                    prepare_video_name_with_link(video_info, annotated_frames_count[1]),
                     seconds_to_time(video_info.duration),
                     video_info.frames_count,
                     annotated_frames_count[0],

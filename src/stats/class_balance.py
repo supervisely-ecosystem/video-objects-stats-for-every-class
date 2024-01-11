@@ -37,7 +37,7 @@ def update_totals_by_datasets(dsname2total, total_row, columns, column_base):
 
 
 def calculate_classes_stats(datasets_counts):
-    table_options = {"fixedColumns": 2, "pageSize": 20}
+    table_options = {"fixColumns": 1, "pageSize": 10}
 
     if len(g.PROJECT_META.obj_classes) == 0:
         sly.logger.warn("There are no object classes in the project")
