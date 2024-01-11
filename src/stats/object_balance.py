@@ -21,7 +21,7 @@ def seconds_to_time(seconds):
         seconds = int(seconds)
     m, s = divmod(seconds, 60)
     h, m = divmod(m, 60)
-    return f"{h:02d}:{m:02d}:{s:02d}"
+    return f"{int(h):02d}:{int(m):02d}:{int(s):02d}"
 
 
 def calculate_objects_stats(videos_counts, need_to_add_tags=False):
