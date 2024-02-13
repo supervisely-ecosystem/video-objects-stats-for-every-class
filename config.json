@@ -2,10 +2,14 @@
   "name": "Video objects stats for every class",
   "type": "app",
   "version": "2.0.0",
-  "categories": ["videos", "statistics", "visualization stats"],
+  "categories": [
+    "videos",
+    "statistics",
+    "visualization stats"
+  ],
   "description": "The number of objects, figures and frames for every class for every dataset",
-  "docker_image": "supervisely/visualization-stats:6.73.3",
-  "instance_version": "6.8.54",
+  "docker_image": "supervisely/visualization-stats:6.73.22",
+  "instance_version": "6.8.73",
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --log-level warning",
   "port": 8000,
   "modal_template": "src/modal.html",
@@ -13,7 +17,10 @@
   "icon": "https://i.imgur.com/3JATXzl.png",
   "icon_background": "#FFFFFF",
   "context_menu": {
-    "target": ["videos_project", "videos_dataset"],
+    "target": [
+      "videos_project",
+      "videos_dataset"
+    ],
     "context_root": "Report"
   },
   "poster": "https://user-images.githubusercontent.com/48245050/182398075-177b1c24-a357-45c1-9ad9-f1923f6f32c2.png"
