@@ -99,7 +99,7 @@ def process_project():
                     ann = sly.VideoAnnotation.from_json(ann_info, g.PROJECT_META, key_id_map)
                 except Exception as e:
                     err_msg = "An error occured while deserialization. Skipping annotation..."
-                    debug_info = {"json annotation": ann_info, "exception message": str(e)}
+                    debug_info = {"json annotation": ann_info, "key id map": key_id_map, "exception message": str(e)}
                     sly.logger.error(err_msg, extra=debug_info)
                     continue
                 process_video_annotation(ann, ds_objects, ds_figures, video_frames, obj_figures)
