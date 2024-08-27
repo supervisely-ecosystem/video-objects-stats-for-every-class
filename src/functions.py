@@ -92,10 +92,17 @@ def process_project():
 
             videos = g.api.video.get_list(dataset.id)
             for video_info in videos:
-                video_frames = ds_frames.setdefault(video_info.name, {})
 
                 ann_info = g.api.video.annotation.download(video_info.id)
-                ann = sly.VideoAnnotation.from_json(ann_info, g.PROJECT_META, key_id_map)
+                try:
+                    ann = sly.VideoAnnotation.from_json(ann_info, g.PROJECT_META, key_id_map)
+                except Exception as e:
+                    err_msg = "An error occured while deserialization. Skipping annotation..."
+                    debug_info = {"json annotation": ann_info, "key id map": key_id_map, "exception message": repr(e)}
+                    sly.logger.error(err_msg, extra=debug_info)
+                    continue
+                video_frames = ds_frames.setdefault(video_info.name, {})
+
                 process_video_annotation(ann, ds_objects, ds_figures, video_frames, obj_figures)
                 objkey2frames_cnt, objkey2tags = get_frames_tags_by_objects_on_videos(video_frames)
                 objkey2classname = {str(obj.key()): obj.obj_class.name for obj in ann.objects}
