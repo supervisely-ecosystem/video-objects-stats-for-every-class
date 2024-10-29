@@ -95,7 +95,15 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
         for video_info, objkey2class, objkey2frames_cnt, objkey2tags, obj_figures in videos_list:
             for obj_key, annotated_frames_count in objkey2frames_cnt.items():
                 obj_figures_count = obj_figures[obj_key]
-                obj_class_name = objkey2class[obj_key]
+                try:
+                    obj_class_name = objkey2class[obj_key]
+                except KeyError:
+                    extra_info = {"objkey2class": objkey2class, "video name": video_info.name}
+                    sly.logger.warning(
+                        "Object class with key {} not found. Skipping...".format(obj_key),
+                        extra=extra_info,
+                    )
+                    continue
                 row = [
                     object_id,  # obj_key,
                     obj_class_name,
