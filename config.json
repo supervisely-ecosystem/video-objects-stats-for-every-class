@@ -9,7 +9,7 @@
   ],
   "description": "The number of objects, figures and frames for every class for every dataset",
   "docker_image": "supervisely/visualization-stats:6.73.22",
-  "instance_version": "6.8.73",
+  "instance_version": "6.9.11",
   "entrypoint": "python -m uvicorn src.main:app --host 0.0.0.0 --port 8000 --log-level warning",
   "port": 8000,
   "modal_template": "src/modal.html",
