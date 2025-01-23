@@ -52,3 +52,4 @@ server = app.get_server()
 @server.post("/my_method")
 def my_method(request):
     print("Custom exception will be raised")
+    raise Exception("Test exception")
