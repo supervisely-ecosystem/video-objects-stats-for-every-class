@@ -51,9 +51,4 @@ server = app.get_server()
 
 @server.post("/my_method")
 def my_method(request):
-    print("my_method")
-    context = request.get("context", {})
-    print(context)
-    state = request.get("state", {})
-    print(state)
-    return {"state": {"data": "my_method"}}
+    print("Custom exception will be raised")
