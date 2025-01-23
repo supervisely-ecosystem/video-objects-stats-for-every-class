@@ -5,6 +5,7 @@ import src.ui.controls as controls
 import src.ui.input as input
 import src.ui.object_stats as object_stats
 import src.ui.output as output
+from fastapi import Request
 import supervisely as sly
 from supervisely.app.widgets import Container
 
@@ -50,6 +51,6 @@ app = sly.Application(layout=layout)
 server = app.get_server()
 
 @server.post("/my_method")
-def my_method(request):
+def my_method(request: Request):
     print("Custom exception will be raised")
     raise Exception("Test exception")
