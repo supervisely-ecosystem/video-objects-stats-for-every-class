@@ -17,6 +17,8 @@ layout = Container(widgets=[input_output, class_stats.card, object_stats.card])
 
 @controls.start_btn.click
 def calculate_stats():
+    print("Custom exception will be raised")
+    raise Exception("Test exception")
     # ui
     controls.text.hide()
     controls.start_btn.disable()
@@ -43,3 +45,15 @@ def calculate_stats():
 
 
 app = sly.Application(layout=layout)
+
+
+server = app.get_server()
+
+@server.post("/my_method")
+def my_method(request):
+    print("my_method")
+    context = request.get("context", {})
+    print(context)
+    state = request.get("state", {})
+    print(state)
+    return {"state": {"data": "my_method"}}
