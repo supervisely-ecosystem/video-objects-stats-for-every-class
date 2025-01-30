@@ -18,8 +18,6 @@ layout = Container(widgets=[input_output, class_stats.card, object_stats.card])
 
 @controls.start_btn.click
 def calculate_stats():
-    print("Custom exception will be raised")
-    raise Exception("Test exception")
     # ui
     controls.text.hide()
     controls.start_btn.disable()
