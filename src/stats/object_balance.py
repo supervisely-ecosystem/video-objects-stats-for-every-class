@@ -74,14 +74,14 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
     columns = [
         "#",
         "type",  # Changed from "class" to "type" to accommodate both objects and tags
-        "class",
+        "name",  # Changed from "class" to "name"
         "dataset",
         "video",
         "video duration",
         "video duration",
         "frames",
         "presence in video",  # = time stamp of last figure – time stamp of first figure // or by calculation using the frames/seconds measure)
-        "figures",
+        "count",  # Changed from "figures" to "count occurencies"
         "first frame",
         "last frame",
         # "frame size",
@@ -94,7 +94,7 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
     columns_options = [
         {},
         {"subtitle": "object or tag"},  # New column for type
-        {"type": "class"},
+        {"type": "class"},  # Still using "class" type for styling, but column name is "name"
         {"subtitle": "name"},
         {
             "subtitle": "name",
@@ -109,7 +109,7 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
             "maxValue": 100,
             "tooltip": "percentage of frames with current object in the video",
         },
-        {"subtitle": "count", "postfix": "figures"},
+        {"subtitle": "number of occurrences", "postfix": "occurrences"},  # Updated postfix
         {"subtitle": "frame index", "tooltip": "first frame index with current object"},
         {"subtitle": "frame index", "tooltip": "last frame index with current object"},
     ]
