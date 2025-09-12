@@ -28,20 +28,52 @@ def seconds_to_time(seconds):
     return f"{int(h):02d}:{int(m):02d}:{int(s):02d}"
 
 
+def calculate_video_tags_stats(video_info, video_ann, project_meta):
+    """Calculate stats for video-level frame-based tags"""
+    tag_stats = {}
+    
+    # Get video-level tags
+    for tag in video_ann.tags:
+        tag_name = tag.meta.name
+        
+        if tag_name not in tag_stats:
+            tag_stats[tag_name] = {
+                'total_frames': 0,
+                'frame_ranges': [],
+                'first_frame': None,
+                'last_frame': None
+            }
+        
+        # Count frames for this tag
+        if tag.frame_range is not None:
+            # Tag has a frame range
+            start_frame = tag.frame_range[0]
+            end_frame = tag.frame_range[1]
+            frame_count = end_frame - start_frame + 1
+            tag_stats[tag_name]['total_frames'] += frame_count
+            tag_stats[tag_name]['frame_ranges'].append((start_frame, end_frame))
+            
+            # Update first and last frame
+            if tag_stats[tag_name]['first_frame'] is None or start_frame < tag_stats[tag_name]['first_frame']:
+                tag_stats[tag_name]['first_frame'] = start_frame
+            if tag_stats[tag_name]['last_frame'] is None or end_frame > tag_stats[tag_name]['last_frame']:
+                tag_stats[tag_name]['last_frame'] = end_frame
+        else:
+            # Tag applies to entire video or single frame
+            tag_stats[tag_name]['total_frames'] += video_info.frames_count
+            if tag_stats[tag_name]['first_frame'] is None:
+                tag_stats[tag_name]['first_frame'] = 0
+            tag_stats[tag_name]['last_frame'] = video_info.frames_count - 1
+    
+    return tag_stats
+
+
 def calculate_objects_stats(videos_counts, need_to_add_tags=False):
     table_options = {"fixColumns": 1, "pageSize": 10}
 
-    if len(g.PROJECT_META.obj_classes) == 0:
-        sly.logger.warn("There are no object in the project")
-        sly.app.show_dialog(
-            title="No object classes",
-            description="There are no object classes in the project",
-            status="warning",
-        )
-        return {"data": [], "columns": [], "columnsOptions": {}, "options": {}}
-
     columns = [
         "#",
+        "type",  # Changed from "class" to "type" to accommodate both objects and tags
         "class",
         "dataset",
         "video",
@@ -61,6 +93,7 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
     ]
     columns_options = [
         {},
+        {"subtitle": "object or tag"},  # New column for type
         {"type": "class"},
         {"subtitle": "name"},
         {
@@ -93,6 +126,7 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
     object_id = 1
     for ds_name, videos_list in videos_counts.items():
         for video_info, objkey2class, objkey2frames_cnt, objkey2tags, obj_figures in videos_list:
+            # Process objects
             for obj_key, annotated_frames_count in objkey2frames_cnt.items():
                 obj_figures_count = obj_figures[obj_key]
                 try:
@@ -106,6 +140,7 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
                     continue
                 row = [
                     object_id,  # obj_key,
+                    "Object",  # Type
                     obj_class_name,
                     ds_name,
                     prepare_video_name_with_link(video_info, annotated_frames_count[1]),
@@ -145,6 +180,40 @@ def calculate_objects_stats(videos_counts, need_to_add_tags=False):
 
                 data.append(row)
                 object_id += 1
+            
+            # Process video-level tags
+            try:
+                video_ann_json = g.api.video.annotation.download(video_info.id)
+                video_ann = sly.VideoAnnotation.from_json(video_ann_json, g.PROJECT_META)
+                video_tag_stats = calculate_video_tags_stats(video_info, video_ann, g.PROJECT_META)
+                
+                for tag_name, tag_data in video_tag_stats.items():
+                    tag_row = [
+                        object_id,
+                        "Video Tag",  # Type
+                        tag_name,
+                        ds_name,
+                        prepare_video_name_with_link(video_info, tag_data['first_frame'] if tag_data['first_frame'] is not None else 0),
+                        seconds_to_time(video_info.duration),
+                        video_info.frames_count,
+                        tag_data['total_frames'],
+                        round(tag_data['total_frames'] / video_info.frames_count * 100, 2) if video_info.frames_count > 0 else 0,
+                        len(tag_data['frame_ranges']) if tag_data['frame_ranges'] else 1,  # Number of tag instances
+                        tag_data['first_frame'] if tag_data['first_frame'] is not None else 0,
+                        tag_data['last_frame'] if tag_data['last_frame'] is not None else video_info.frames_count - 1,
+                    ]
+                    
+                    if need_to_add_tags:
+                        for tag_meta in g.PROJECT_META.tag_metas:
+                            if tag_meta.applicable_to != sly.TagApplicableTo.IMAGES_ONLY:
+                                tag_row.append("")  # Video tags don't have object-level tags
+                                tag_row.append("")
+                    
+                    data.append(tag_row)
+                    object_id += 1
+            except Exception as e:
+                sly.logger.warning(f"Failed to process video tags for video {video_info.name}: {e}")
+                continue
 
     df = pd.DataFrame(data, columns=columns)
 
