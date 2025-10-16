@@ -77,7 +77,7 @@ def process_project():
 
     key_id_map = sly.KeyIdMap()
     with c.progress(total=total_count, message="Processing video labels ...") as pbar:
-        for dataset in g.api.dataset.get_list(g.PROJECT.id):
+        for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
             if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
                 continue
             # for classes stats
@@ -98,7 +98,11 @@ def process_project():
                     ann = sly.VideoAnnotation.from_json(ann_info, g.PROJECT_META, key_id_map)
                 except Exception as e:
                     err_msg = "An error occured while deserialization. Skipping annotation..."
-                    debug_info = {"json annotation": ann_info, "key id map": key_id_map, "exception message": repr(e)}
+                    debug_info = {
+                        "json annotation": ann_info,
+                        "key id map": key_id_map,
+                        "exception message": repr(e),
+                    }
                     sly.logger.error(err_msg, extra=debug_info)
                     continue
                 video_frames = ds_frames.setdefault(video_info.name, {})
