@@ -55,7 +55,7 @@ def calculate_classes_stats(datasets_counts):
         columns.extend([f"total {name}" for name in column_base])
         columns_options.extend([{"subtitle": "in the project"} for name in column_base])
 
-    for dataset in g.api.dataset.get_list(g.PROJECT.id):
+    for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
         if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
             continue
 
