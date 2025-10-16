@@ -55,14 +55,19 @@ def calculate_classes_stats(datasets_counts):
         columns.extend([f"total {name}" for name in column_base])
         columns_options.extend([{"subtitle": "in the project"} for name in column_base])
 
+    # Only add columns for datasets that are actually in datasets_counts
+    datasets_in_counts = [ds_name for ds_name, _, _, _ in datasets_counts]
+
     for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
         if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
             continue
 
-        columns.extend(column_base)
-        columns_options.extend(
-            [{"subtitle": f"in '{dataset.name}' dataset"} for name in column_base]
-        )
+        # Only add columns if this dataset is in the actual data
+        if dataset.name in datasets_in_counts:
+            columns.extend(column_base)
+            columns_options.extend(
+                [{"subtitle": f"in '{dataset.name}' dataset"} for name in column_base]
+            )
 
     data = []
     for idx, obj_class in enumerate(g.PROJECT_META.obj_classes):
