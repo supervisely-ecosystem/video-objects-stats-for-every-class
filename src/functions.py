@@ -68,18 +68,41 @@ def get_frames_tags_by_objects_on_videos(video_frames):
 
 
 def process_project():
-    total_count = g.PROJECT.items_count
+    # Determine scope and total count
     if g.DATASET_ID is not None:
-        total_count = g.api.dataset.get_info_by_id(g.DATASET_ID).items_count
+        # Dataset-level execution (including nested datasets)
+        parent_dataset = g.api.dataset.get_info_by_id(g.DATASET_ID)
+
+        # Get all datasets recursively and filter by parent relationship
+        all_datasets = g.api.dataset.get_list(g.PROJECT.id, recursive=True)
+
+        # Include the selected dataset and all its direct children
+        datasets_to_process = [parent_dataset]  # Start with the selected dataset
+
+        # Add all datasets that have the selected dataset as parent
+        for dataset in all_datasets:
+            if dataset.parent_id == g.DATASET_ID:
+                datasets_to_process.append(dataset)
+
+        # Calculate total count for all selected datasets
+        total_count = sum(dataset.items_count for dataset in datasets_to_process)
+
+        sly.logger.info(f"Processing dataset: {parent_dataset.name} (ID: {g.DATASET_ID})")
+        sly.logger.info(f"Found {len(datasets_to_process)} datasets to process (including nested)")
+    else:
+        # Project-level execution
+        total_count = g.PROJECT.items_count
+        datasets_to_process = g.api.dataset.get_list(g.PROJECT.id, recursive=True)
+        sly.logger.info(
+            f"Processing entire project: {g.PROJECT.name} ({len(datasets_to_process)} datasets)"
+        )
 
     datasets_counts = []
     videos_counts = defaultdict(list)
 
     key_id_map = sly.KeyIdMap()
     with c.progress(total=total_count, message="Processing video labels ...") as pbar:
-        for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
-            if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
-                continue
+        for dataset in datasets_to_process:
             # for classes stats
             ds_objects = defaultdict(int)
             ds_figures = defaultdict(int)
