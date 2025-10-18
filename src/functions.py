@@ -70,14 +70,14 @@ def get_frames_tags_by_objects_on_videos(video_frames):
 def process_project():
     total_count = g.PROJECT.items_count
     if g.DATASET_ID is not None:
-        total_count = g.api.dataset.get_info_by_id(g.DATASET_ID).items_count
+        total_count = get_dataset_items_count(g.api, g.DATASET_ID)
 
     datasets_counts = []
     videos_counts = defaultdict(list)
 
     key_id_map = sly.KeyIdMap()
     with c.progress(total=total_count, message="Processing video labels ...") as pbar:
-        for dataset in g.api.dataset.get_list(g.PROJECT.id):
+        for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
             if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
                 continue
             # for classes stats
@@ -98,7 +98,11 @@ def process_project():
                     ann = sly.VideoAnnotation.from_json(ann_info, g.PROJECT_META, key_id_map)
                 except Exception as e:
                     err_msg = "An error occured while deserialization. Skipping annotation..."
-                    debug_info = {"json annotation": ann_info, "key id map": key_id_map, "exception message": repr(e)}
+                    debug_info = {
+                        "json annotation": ann_info,
+                        "key id map": key_id_map,
+                        "exception message": repr(e),
+                    }
                     sly.logger.error(err_msg, extra=debug_info)
                     continue
                 video_frames = ds_frames.setdefault(video_info.name, {})
@@ -158,3 +162,26 @@ def save_report(cls_stats, obj_stats):
 
     sly.fs.remove_dir(report_dir)
     return file_info
+
+
+def get_dataset_items_count(api: sly.Api, dataset_id: int, include_parent: bool = True) -> int:
+    """Get total number of items in a datasets, optionally including items in dataset itself.
+
+    :param api: Supervisely API object.
+    :type api: sly.Api
+    :param dataset_id: ID of the dataset to get items count for.
+    :type dataset_id: int
+    :param include_parent: Whether to include items of the dataset itself.
+    :type include_parent: bool
+    :return: Total number of items_count.
+    :rtype: int
+    """
+
+    dataset_info = api.dataset.get_info_by_id(dataset_id)
+
+    total_dataset_infos = api.dataset.get_nested(dataset_info.project_id, dataset_id)
+
+    items_count = dataset_info.items_count if include_parent else 0
+    for dataset_info in total_dataset_infos:
+        items_count += dataset_info.items_count
+    return items_count
