@@ -78,7 +78,9 @@ def process_project():
     key_id_map = sly.KeyIdMap()
     with c.progress(total=total_count, message="Processing video labels ...") as pbar:
         for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
-            if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
+            if g.DATASET_ID is not None and dataset.id not in get_all_selected_ds_list(
+                g.api, g.DATASET_ID
+            ):
                 continue
             # for classes stats
             ds_objects = defaultdict(int)
@@ -164,11 +166,20 @@ def save_report(cls_stats, obj_stats):
     return file_info
 
 
+def get_dataset_infos(api: sly.Api, dataset_id: int, include_itself: bool = True):
+
+    dataset_info = api.dataset.get_info_by_id(dataset_id)
+    nested_dataset_infos = api.dataset.get_nested(dataset_info.project_id, dataset_id)
+
+    if include_itself:
+        nested_dataset_infos.insert(0, dataset_info)
+
+    return nested_dataset_infos
+
+
 def get_dataset_items_count(api: sly.Api, dataset_id: int, include_parent: bool = True) -> int:
     """Get total number of items in a datasets, optionally including items in dataset itself.
 
-    :param api: Supervisely API object.
-    :type api: sly.Api
     :param dataset_id: ID of the dataset to get items count for.
     :type dataset_id: int
     :param include_parent: Whether to include items of the dataset itself.
@@ -177,11 +188,29 @@ def get_dataset_items_count(api: sly.Api, dataset_id: int, include_parent: bool 
     :rtype: int
     """
 
-    dataset_info = api.dataset.get_info_by_id(dataset_id)
+    return sum(
+        ds_info.items_count
+        for ds_info in get_dataset_infos(api, dataset_id, include_itself=include_parent)
+    )
 
-    total_dataset_infos = api.dataset.get_nested(dataset_info.project_id, dataset_id)
 
-    items_count = dataset_info.items_count if include_parent else 0
-    for dataset_info in total_dataset_infos:
-        items_count += dataset_info.items_count
-    return items_count
+def get_all_selected_ds_list(api: sly.Api, dataset_id: int, include_parent: bool = True) -> list:
+    """Get list of all selected datasets, optionally including the parent dataset.
+
+    :param dataset_id: ID of the dataset to get items count for.
+    :type dataset_id: int
+    :param include_parent: Whether to include the parent dataset itself.
+    :type include_parent: bool
+    :return: List of all selected datasets.
+    :rtype: list
+    """
+
+    ids = []
+    all_selected_ds = get_dataset_infos(api, dataset_id, include_itself=include_parent)
+
+    for ds_info in all_selected_ds:
+        ids.append(ds_info.id)
+
+    return [
+        ds_info.id for ds_info in get_dataset_infos(api, dataset_id, include_itself=include_parent)
+    ]

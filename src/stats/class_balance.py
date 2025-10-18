@@ -2,6 +2,7 @@ import json
 
 import pandas as pd
 
+from src.functions import get_all_selected_ds_list
 import src.globals as g
 import supervisely as sly
 
@@ -56,7 +57,9 @@ def calculate_classes_stats(datasets_counts):
         columns_options.extend([{"subtitle": "in the project"} for name in column_base])
 
     for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
-        if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
+        if g.DATASET_ID is not None and dataset.id not in get_all_selected_ds_list(
+            g.api, g.DATASET_ID
+        ):
             continue
 
         columns.extend(column_base)
