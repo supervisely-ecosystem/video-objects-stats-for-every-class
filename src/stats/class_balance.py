@@ -2,7 +2,6 @@ import json
 
 import pandas as pd
 
-from src.functions import get_all_selected_ds_list
 import src.globals as g
 import supervisely as sly
 
@@ -38,6 +37,8 @@ def update_totals_by_datasets(dsname2total, total_row, columns, column_base):
 
 
 def calculate_classes_stats(datasets_counts):
+    from src.functions import get_all_selected_ds_list
+
     table_options = {"fixColumns": 1, "pageSize": 10}
 
     if len(g.PROJECT_META.obj_classes) == 0:
