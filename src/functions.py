@@ -113,7 +113,7 @@ def process_project():
                 objkey2frames_cnt, objkey2tags = get_frames_tags_by_objects_on_videos(video_frames)
                 objkey2classname = {str(obj.key()): obj.obj_class.name for obj in ann.objects}
                 videos_counts[dataset.name].append(
-                    (video_info, objkey2classname, objkey2frames_cnt, objkey2tags, obj_figures)
+                    (video_info, objkey2classname, objkey2frames_cnt, objkey2tags, obj_figures, ann)
                 )
                 pbar.update(1)
 
