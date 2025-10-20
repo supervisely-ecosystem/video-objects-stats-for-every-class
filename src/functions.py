@@ -70,15 +70,17 @@ def get_frames_tags_by_objects_on_videos(video_frames):
 def process_project():
     total_count = g.PROJECT.items_count
     if g.DATASET_ID is not None:
-        total_count = g.api.dataset.get_info_by_id(g.DATASET_ID).items_count
+        total_count = get_dataset_items_count(g.api, g.DATASET_ID)
 
     datasets_counts = []
     videos_counts = defaultdict(list)
 
     key_id_map = sly.KeyIdMap()
     with c.progress(total=total_count, message="Processing video labels ...") as pbar:
-        for dataset in g.api.dataset.get_list(g.PROJECT.id):
-            if g.DATASET_ID is not None and dataset.id != g.DATASET_ID:
+        for dataset in g.api.dataset.get_list(g.PROJECT.id, recursive=True):
+            if g.DATASET_ID is not None and dataset.id not in get_all_selected_ds_list(
+                g.api, g.DATASET_ID
+            ):
                 continue
             # for classes stats
             ds_objects = defaultdict(int)
@@ -98,7 +100,11 @@ def process_project():
                     ann = sly.VideoAnnotation.from_json(ann_info, g.PROJECT_META, key_id_map)
                 except Exception as e:
                     err_msg = "An error occured while deserialization. Skipping annotation..."
-                    debug_info = {"json annotation": ann_info, "key id map": key_id_map, "exception message": repr(e)}
+                    debug_info = {
+                        "json annotation": ann_info,
+                        "key id map": key_id_map,
+                        "exception message": repr(e),
+                    }
                     sly.logger.error(err_msg, extra=debug_info)
                     continue
                 video_frames = ds_frames.setdefault(video_info.name, {})
@@ -107,7 +113,7 @@ def process_project():
                 objkey2frames_cnt, objkey2tags = get_frames_tags_by_objects_on_videos(video_frames)
                 objkey2classname = {str(obj.key()): obj.obj_class.name for obj in ann.objects}
                 videos_counts[dataset.name].append(
-                    (video_info, objkey2classname, objkey2frames_cnt, objkey2tags, obj_figures)
+                    (video_info, objkey2classname, objkey2frames_cnt, objkey2tags, obj_figures, ann)
                 )
                 pbar.update(1)
 
@@ -158,3 +164,53 @@ def save_report(cls_stats, obj_stats):
 
     sly.fs.remove_dir(report_dir)
     return file_info
+
+
+def get_dataset_infos(api: sly.Api, dataset_id: int, include_itself: bool = True):
+
+    dataset_info = api.dataset.get_info_by_id(dataset_id)
+    nested_dataset_infos = api.dataset.get_nested(dataset_info.project_id, dataset_id)
+
+    if include_itself:
+        nested_dataset_infos.insert(0, dataset_info)
+
+    return nested_dataset_infos
+
+
+def get_dataset_items_count(api: sly.Api, dataset_id: int, include_parent: bool = True) -> int:
+    """Get total number of items in a datasets, optionally including items in dataset itself.
+
+    :param dataset_id: ID of the dataset to get items count for.
+    :type dataset_id: int
+    :param include_parent: Whether to include items of the dataset itself.
+    :type include_parent: bool
+    :return: Total number of items_count.
+    :rtype: int
+    """
+
+    return sum(
+        ds_info.items_count
+        for ds_info in get_dataset_infos(api, dataset_id, include_itself=include_parent)
+    )
+
+
+def get_all_selected_ds_list(api: sly.Api, dataset_id: int, include_parent: bool = True) -> list:
+    """Get list of all selected datasets, optionally including the parent dataset.
+
+    :param dataset_id: ID of the dataset to get items count for.
+    :type dataset_id: int
+    :param include_parent: Whether to include the parent dataset itself.
+    :type include_parent: bool
+    :return: List of all selected datasets.
+    :rtype: list
+    """
+
+    ids = []
+    all_selected_ds = get_dataset_infos(api, dataset_id, include_itself=include_parent)
+
+    for ds_info in all_selected_ds:
+        ids.append(ds_info.id)
+
+    return [
+        ds_info.id for ds_info in get_dataset_infos(api, dataset_id, include_itself=include_parent)
+    ]
